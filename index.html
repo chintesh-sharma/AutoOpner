@@ -78,7 +78,7 @@
     <textarea id="urls" rows="8" placeholder="Paste LinkedIn profile URLs here (one per line)"></textarea>
     
     <!-- Start button -->
-    <button onclick="startOpening()">🚀 Start Opening Profiles</button>
+    <button id="startBtn">🚀 Start Opening Profiles</button>
 
     <!-- Steps -->
     <h3>📌 How to Use</h3>
@@ -98,9 +98,8 @@
   <script>
     let urls = [];
     let currentIndex = 0;
-    let currentTab = null;
 
-    function startOpening() {
+    document.getElementById("startBtn").addEventListener("click", () => {
       const textarea = document.getElementById("urls");
       urls = textarea.value.split("\n").map(u => u.trim()).filter(u => u.length > 0);
 
@@ -112,13 +111,11 @@
       currentIndex = 0;
       updateProgress();
       openNextProfile();
-    }
+    });
 
     function updateProgress() {
       const progress = document.getElementById("progress");
       progress.innerText = `Profile ${currentIndex + 1} of ${urls.length}`;
-
-      // also update browser tab title
       document.title = `(${currentIndex + 1}/${urls.length}) LinkedIn Auto Opener`;
     }
 
@@ -130,15 +127,16 @@
         return;
       }
 
-      currentTab = window.open(urls[currentIndex], "_blank");
-      updateProgress();
-      console.log("Opened:", urls[currentIndex]);
+      // Open the profile in a new tab (must be triggered by user action)
+      const profileUrl = urls[currentIndex];
+      const newTab = window.open(profileUrl, "_blank");
 
-      // Check every second if tab is closed
-      let checkInterval = setInterval(() => {
-        if(currentTab.closed) {
-          clearInterval(checkInterval);
+      // Poll to check if tab is closed
+      const interval = setInterval(() => {
+        if (newTab.closed) {
+          clearInterval(interval);
           currentIndex++;
+          updateProgress();
           openNextProfile();
         }
       }, 1000);
@@ -146,5 +144,3 @@
   </script>
 </body>
 </html>
-
-
