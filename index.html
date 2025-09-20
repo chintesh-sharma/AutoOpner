@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LinkedIn Auto Opener</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      max-width: 600px;
+      width: 100%;
+    }
+    h2 {
+      color: #2563eb;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    #progress {
+      font-size: 18px;
+      font-weight: bold;
+      color: #1e40af;
+      margin: 10px 0 20px 0;
+      text-align: center;
+    }
+    textarea {
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    ol {
+      margin-top: 20px;
+      padding-left: 20px;
+      font-size: 14px;
+      color: #374151;
+    }
+    .footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 13px;
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>LinkedIn Auto Profile Opener</h2>
+
+    <!-- Progress display -->
+    <div id="progress">Progress: 0 / 0</div>
+
+    <!-- URL input -->
+    <textarea id="urls" rows="8" placeholder="Paste LinkedIn profile URLs here (one per line)"></textarea>
+    
+    <!-- Start button -->
+    <button onclick="startOpening()">🚀 Start Opening Profiles</button>
+
+    <!-- Steps -->
+    <h3>📌 How to Use</h3>
+    <ol>
+      <li>Paste LinkedIn profile URLs into the box above (one per line).</li>
+      <li>Click <b>Start Opening Profiles</b>.</li>
+      <li>A profile will open in a new tab.</li>
+      <li>Click <b>Connect</b> on LinkedIn, then close that tab.</li>
+      <li>The next profile will automatically open.</li>
+    </ol>
+
+    <div class="footer">
+      ⚠️ Make sure you are logged into LinkedIn in this browser.
+    </div>
+  </div>
+
+  <script>
+    let urls = [];
+    let currentIndex = 0;
+    let currentTab = null;
+
+    function startOpening() {
+      const textarea = document.getElementById("urls");
+      urls = textarea.value.split("\n").map(u => u.trim()).filter(u => u.length > 0);
+
+      if(urls.length === 0) {
+        alert("Please paste at least one LinkedIn URL.");
+        return;
+      }
+
+      currentIndex = 0;
+      updateProgress();
+      openNextProfile();
+    }
+
+    function updateProgress() {
+      const progress = document.getElementById("progress");
+      progress.innerText = `Profile ${currentIndex + 1} of ${urls.length}`;
+
+      // also update browser tab title
+      document.title = `(${currentIndex + 1}/${urls.length}) LinkedIn Auto Opener`;
+    }
+
+    function openNextProfile() {
+      if(currentIndex >= urls.length) {
+        document.getElementById("progress").innerText = "✅ All profiles processed!";
+        document.title = "✅ All profiles processed!";
+        alert("All profiles processed!");
+        return;
+      }
+
+      currentTab = window.open(urls[currentIndex], "_blank");
+      updateProgress();
+      console.log("Opened:", urls[currentIndex]);
+
+      // Check every second if tab is closed
+      let checkInterval = setInterval(() => {
+        if(currentTab.closed) {
+          clearInterval(checkInterval);
+          currentIndex++;
+          openNextProfile();
+        }
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
+
+
